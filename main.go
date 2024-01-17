@@ -21,6 +21,8 @@ func init() {
 	db.AutoMigrate(
 		&models.Users{},
 		&models.PersonalAccessToken{},
+		&models.Story{},
+		&models.Chap{},
 	)
 }
 

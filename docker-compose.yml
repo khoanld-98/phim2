@@ -1,0 +1,97 @@
+version: '3.9'
+
+services:
+  mysql:
+    platform: linux/x86_64
+    image: mysql:5.7
+    container_name: mysql_story
+    restart: always
+    environment:
+      MYSQL_USER: gotest
+      MYSQL_PASSWORD: gotest
+      MYSQL_ROOT_PASSWORD: gotest
+      MYSQL_DATABASE: story
+    ports:
+      - 3309:3306
+    volumes:
+      - db:/var/lib/mysql
+    networks:
+      - story
+
+  # nginxgo:
+  #   image: nginx:1.24.0-alpine
+  #   container_name: nginx_golang
+  #   restart: always
+  #   ports:
+  #     - 8080:8080
+  #   volumes:
+  #     - ./nginx/api/default.conf:/etc/nginx/conf.d/default.conf
+  #   depends_on:
+  #     - golang
+  #   networks:
+  #     - golang
+
+  golang:
+    build: .
+    container_name: story-golang
+    restart: always
+    ports:
+      - 8000:8080
+    command: "nodemon --exec go run main.go --signal SIGTERM"
+    volumes:
+      - .:/app
+    depends_on:
+      - mysql
+    networks:
+      - story
+
+  # nuxtjs:
+  #   container_name: nuxtjs
+  #   build: ./api-fim
+  #   restart: always
+  #   ports:
+  #     - '3000:3000'
+  #   volumes:
+  #     - ./api-fim/:/web
+  #   networks:
+  #     - nuxtjs
+
+  # minio:
+  #   image: minio/minio:latest
+  #   container_name: minio
+  #   restart: always
+  #   command:
+  #     - server
+  #     - --console-address
+  #     - :9001
+  #     - /data
+  #   ports:
+  #     - 9000:9000
+  #     - 9001:9001
+  #   networks:
+  #     - minio
+  #   environment:
+  #     MINIO_ACCESS_KEY: minio1234
+  #     MINIO_SECRET_KEY: secret1234
+  #     MINIO_REGION_NAME: us-east-1
+  #   volumes:
+  #     - storage:/data
+  
+  # socketio:
+  #   container_name: socket
+  #   build: ./socket
+  #   restart: always
+  #   ports:
+  #     - 4000:4000
+  #   volumes:
+  #     - ./socket/:/socketIO
+  #   networks:
+  #     - socket
+  #     - golang
+
+volumes:
+  db:
+  storage:
+networks:
+  story:
+

@@ -11,6 +11,7 @@ type CrawlService struct {
 	query        crawlForm
 	listContent  []content
 	linkPaginate []string
+	NextPage     string
 }
 
 type crawlForm struct {
@@ -49,13 +50,7 @@ func (cs *CrawlService) prepareCrawl() bool {
 
 	// url page
 	crawler.OnHTML(cs.query.NextPage, func(e *colly.HTMLElement) {
-		fmt.Printf("get Content in page1: %+v\n", e.Attr("href"))
-		if e.Attr("href") != "javascript:void(0)" || e.Attr("href") != "#" {
-			fmt.Printf("get Content in page2: %+v\n", e.Attr("href"))
-			cs.query.Url = e.Attr("href")
-		}
-
-		cs.query.NextPage = e.Attr("href")
+		cs.NextPage = e.Attr("href")
 	})
 
 	// content of series
@@ -63,14 +58,16 @@ func (cs *CrawlService) prepareCrawl() bool {
 		content.Content = e.Text
 	})
 
-	if cs.query.Url == "" {
+	crawler.Visit(cs.query.Url)
+
+	fmt.Printf("get Content: %+v\n", cs.query.Url)
+	cs.query.Url = cs.NextPage
+
+	cs.listContent = append(cs.listContent, content)
+
+	if cs.NextPage == "javascript:void(0)" || cs.NextPage == "#" {
 		return false
 	}
-
-	crawler.Visit(cs.query.Url)
-	// fmt.Printf("get Content: %+v", content)
-	fmt.Printf("get Content: %+v\n", cs.query.Url)
-	cs.listContent = append(cs.listContent, content)
 
 	return true
 }

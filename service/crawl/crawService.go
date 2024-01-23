@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gocolly/colly"
+	"gorm.io/gorm"
 )
 
 type CrawlService struct {
@@ -36,14 +37,7 @@ func (cs *CrawlService) Handle(ctx *gin.Context) {
 	db.Create(&story)
 	cs.Story = story
 
-	for {
-		check := cs.prepareCrawl()
-		if check == false {
-			break
-		}
-	}
-
-	db.CreateInBatches(cs.listContent, 100)
+	go cs.CrawlChap(db)
 }
 
 func (cs *CrawlService) prepareCrawl() bool {
@@ -77,4 +71,15 @@ func (cs *CrawlService) prepareCrawl() bool {
 	}
 
 	return true
+}
+
+func (cs *CrawlService) CrawlChap(db *gorm.DB) {
+	for {
+		check := cs.prepareCrawl()
+		if check == false {
+			break
+		}
+	}
+
+	db.CreateInBatches(cs.listContent, 100)
 }

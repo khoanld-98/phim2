@@ -24,7 +24,8 @@ func RegisterRoute() {
 	router.POST("/login", controller.Login)
 	router.POST("/register", auth.Register)
 	router.GET("/logout", auth.Logout)
-	router.GET("crawl", story.Crawl)
+	router.GET("crawl-series", story.Crawl)
+	router.GET("crawl-story", story.Crawl)
 
 	router.POST("user/update-information", user.Update)
 	router.POST("user/change-password", user.ChangePassword)

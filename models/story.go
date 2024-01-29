@@ -7,7 +7,7 @@ type Story struct {
 	Name        string
 	Description string
 	Auth        string
-	source      string
+	Source      string
 	Status      int
 	AllowCrawl  bool
 }

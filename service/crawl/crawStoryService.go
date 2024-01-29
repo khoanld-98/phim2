@@ -28,10 +28,9 @@ type crawlStoryFrom struct {
 func (cs *CrawlStoryService) Handle(ctx *gin.Context) {
 	ctx.BindQuery(&cs.Query)
 	db := store.ConnectDB()
-	done := make(chan int)
-	for i := cs.Query.StartPaginate; i < cs.Query.StopPaginate; i++ {
-		go cs.CrawlAll(i, db, done)
-	}
+
+	go cs.CrawlAll(db)
+
 }
 
 func (cs *CrawlStoryService) prepareCrawl(page int) {
@@ -63,9 +62,11 @@ func (cs *CrawlStoryService) prepareCrawl(page int) {
 	crawl.Visit(url)
 }
 
-func (cs *CrawlStoryService) CrawlAll(page int, db *gorm.DB, done chan int) {
-	cs.prepareCrawl(page)
-	db.CreateInBatches(cs.ListStory, 100)
+func (cs *CrawlStoryService) CrawlAll(db *gorm.DB) {
+	for i := cs.Query.StartPaginate; i < cs.Query.StopPaginate; i++ {
+		cs.prepareCrawl(i)
+		db.CreateInBatches(cs.ListStory, 100)
+		cs.ListStory = []models.Story{}
+	}
 
-	done <- 1
 }
